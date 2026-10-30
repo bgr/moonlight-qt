@@ -237,10 +237,15 @@ public:
 
     QVector<NvComputer*> getComputers();
 
+    // Same order as getComputers(), without hidden hosts
+    QVector<NvComputer*> getVisibleComputers();
+
     // computer is deleted inside this call
     void deleteHost(NvComputer* computer);
 
     void renameHost(NvComputer* computer, QString name);
+
+    void setHostHidden(NvComputer* computer, bool hidden);
 
     void clientSideAttributeUpdated(NvComputer* computer);
 

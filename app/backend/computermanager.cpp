@@ -399,6 +399,13 @@ void ComputerManager::startPollingComputer(NvComputer* computer)
         return;
     }
 
+    {
+        QReadLocker computerLock(&computer->lock);
+        if (computer->hidden) {
+            return;
+        }
+    }
+
     ComputerPollingEntry* pollingEntry;
 
     if (!m_PollEntries.contains(computer->uuid)) {
@@ -497,6 +504,19 @@ QVector<NvComputer*> ComputerManager::getComputers()
     return hosts;
 }
 
+QVector<NvComputer*> ComputerManager::getVisibleComputers()
+{
+    QVector<NvComputer*> visibleHosts;
+    const auto hosts = getComputers();
+    for (NvComputer* host : hosts) {
+        QReadLocker lock(&host->lock);
+        if (!host->hidden) {
+            visibleHosts.append(host);
+        }
+    }
+    return visibleHosts;
+}
+
 class DeferredHostDeletionTask : public QRunnable
 {
 public:
@@ -551,6 +571,31 @@ void ComputerManager::renameHost(NvComputer* computer, QString name)
 
         computer->name = name;
         computer->hasCustomName = true;
+    }
+
+    // Notify the UI of the state change
+    handleComputerStateChanged(computer);
+}
+
+void ComputerManager::setHostHidden(NvComputer* computer, bool hidden)
+{
+    {
+        QWriteLocker lock(&computer->lock);
+
+        computer->hidden = hidden;
+    }
+
+    {
+        QWriteLocker lock(&m_Lock);
+
+        if (hidden) {
+            if (m_PollEntries.contains(computer->uuid)) {
+                m_PollEntries[computer->uuid]->interrupt();
+            }
+        }
+        else {
+            startPollingComputer(computer);
+        }
     }
 
     // Notify the UI of the state change
@@ -939,8 +984,24 @@ private:
                 bool changed = existingComputer->update(*newComputer);
                 delete newComputer;
 
+                // The user asked for this PC by address, so show it again if it's hidden
+                bool unhidden = false;
+                if (!m_Mdns) {
+                    QWriteLocker computerLock(&existingComputer->lock);
+                    if (existingComputer->hidden) {
+                        existingComputer->hidden = false;
+                        changed = true;
+                        unhidden = true;
+                    }
+                }
+
                 // Drop the lock before notifying
                 m_ComputerManager->m_Lock.unlock();
+
+                if (unhidden) {
+                    QWriteLocker lock(&m_ComputerManager->m_Lock);
+                    m_ComputerManager->startPollingComputer(existingComputer);
+                }
 
                 // For non-mDNS clients, let them know it succeeded
                 if (!m_Mdns) {

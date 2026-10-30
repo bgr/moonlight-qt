@@ -13,8 +13,9 @@ void AppModel::initialize(ComputerManager* computerManager, int computerIndex, b
     connect(m_ComputerManager, &ComputerManager::computerStateChanged,
             this, &AppModel::handleComputerStateChanged);
 
-    Q_ASSERT(computerIndex < m_ComputerManager->getComputers().count());
-    m_Computer = m_ComputerManager->getComputers().at(computerIndex);
+    // computerIndex is a row of ComputerModel, which only lists visible computers
+    Q_ASSERT(computerIndex < m_ComputerManager->getVisibleComputers().count());
+    m_Computer = m_ComputerManager->getVisibleComputers().at(computerIndex);
     m_CurrentGameId = m_Computer->currentGameId;
     m_ShowHiddenGames = showHiddenGames;
 

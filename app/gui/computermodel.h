@@ -31,6 +31,8 @@ public:
 
     virtual QHash<int, QByteArray> roleNames() const override;
 
+    Q_INVOKABLE void hideComputer(int computerIndex);
+
     Q_INVOKABLE void deleteComputer(int computerIndex);
 
     Q_INVOKABLE QString generatePinString();

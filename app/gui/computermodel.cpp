@@ -13,7 +13,7 @@ void ComputerModel::initialize(ComputerManager* computerManager)
     connect(m_ComputerManager, &ComputerManager::pairingCompleted,
             this, &ComputerModel::handlePairingCompleted);
 
-    m_Computers = m_ComputerManager->getComputers();
+    m_Computers = m_ComputerManager->getVisibleComputers();
 }
 
 QVariant ComputerModel::data(const QModelIndex& index, int role) const
@@ -134,6 +134,14 @@ Session* ComputerModel::createSessionForCurrentGame(int computerIndex)
     return nullptr;
 }
 
+void ComputerModel::hideComputer(int computerIndex)
+{
+    Q_ASSERT(computerIndex < m_Computers.count());
+
+    // handleComputerStateChanged() removes it from the list
+    m_ComputerManager->setHostHidden(m_Computers[computerIndex], true);
+}
+
 void ComputerModel::deleteComputer(int computerIndex)
 {
     Q_ASSERT(computerIndex < m_Computers.count());
@@ -227,7 +235,7 @@ void ComputerModel::handlePairingCompleted(NvComputer*, QString error)
 
 void ComputerModel::handleComputerStateChanged(NvComputer* computer)
 {
-    QVector<NvComputer*> newComputerList = m_ComputerManager->getComputers();
+    QVector<NvComputer*> newComputerList = m_ComputerManager->getVisibleComputers();
 
     // Reset the model if the structural layout of the list has changed
     if (m_Computers != newComputerList) {
@@ -236,9 +244,12 @@ void ComputerModel::handleComputerStateChanged(NvComputer* computer)
         endResetModel();
     }
     else {
-        // Let the view know that this specific computer changed
+        // Let the view know that this specific computer changed.
+        // Hidden computers have no row.
         int index = m_Computers.indexOf(computer);
-        emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        if (index >= 0) {
+            emit dataChanged(createIndex(index, 0), createIndex(index, 0));
+        }
     }
 }
 

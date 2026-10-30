@@ -202,6 +202,14 @@ CenteredGridView {
                     }
                 }
                 NavigableMenuItem {
+                    text: qsTr("Hide PC")
+                    onTriggered: {
+                        hidePcDialog.pcIndex = index
+                        hidePcDialog.pcName = model.name
+                        hidePcDialog.open()
+                    }
+                }
+                NavigableMenuItem {
                     text: qsTr("Delete PC")
                     onTriggered: {
                         deletePcDialog.pcIndex = index
@@ -303,11 +311,24 @@ CenteredGridView {
     }
 
     NavigableMessageDialog {
+        id: hidePcDialog
+        // don't allow edits to the rest of the window while open
+        property int pcIndex : -1
+        property string pcName : ""
+        text: qsTr("Are you sure you want to hide '%1'? To show it again, add this PC by its IP address.").arg(pcName)
+        standardButtons: Dialog.Yes | Dialog.No
+
+        onAccepted: {
+            computerModel.hideComputer(pcIndex)
+        }
+    }
+
+    NavigableMessageDialog {
         id: deletePcDialog
         // don't allow edits to the rest of the window while open
         property int pcIndex : -1
         property string pcName : ""
-        text: qsTr("Are you sure you want to remove '%1'?").arg(pcName)
+        text: qsTr("Are you sure you want to delete '%1'? If this PC is still on your network, it will be added again automatically.").arg(pcName)
         standardButtons: Dialog.Yes | Dialog.No
 
         onAccepted: {
