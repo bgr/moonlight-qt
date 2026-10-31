@@ -35,6 +35,10 @@ public:
 
     Q_INVOKABLE void deleteComputer(int computerIndex);
 
+    Q_INVOKABLE QVariantList getHiddenComputers();
+
+    Q_INVOKABLE void unhideComputer(QString uuid);
+
     Q_INVOKABLE QString generatePinString();
 
     Q_INVOKABLE void pairComputer(int computerIndex, QString pin);

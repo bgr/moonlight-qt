@@ -104,6 +104,23 @@ CenteredGridView {
         }
     }
 
+    MouseArea {
+        parent: pcGrid
+        anchors.fill: parent
+        z: -1
+        acceptedButtons: Qt.RightButton
+        onClicked: pcListContextMenu.popup()
+    }
+
+    NavigableMenu {
+        id: pcListContextMenu
+        initiator: pcGrid
+
+        UnhidePcMenu {
+            computerModel: pcGrid.computerModel
+        }
+    }
+
     model: computerModel
 
     delegate: NavigableItemDelegate {
@@ -208,6 +225,9 @@ CenteredGridView {
                         hidePcDialog.pcName = model.name
                         hidePcDialog.open()
                     }
+                }
+                UnhidePcMenu {
+                    computerModel: pcGrid.computerModel
                 }
                 NavigableMenuItem {
                     text: qsTr("Delete PC")
@@ -315,7 +335,7 @@ CenteredGridView {
         // don't allow edits to the rest of the window while open
         property int pcIndex : -1
         property string pcName : ""
-        text: qsTr("Are you sure you want to hide '%1'? To show it again, add this PC by its IP address.").arg(pcName)
+        text: qsTr("Are you sure you want to hide '%1'? To show it again, right-click the PC list and choose Unhide PC.").arg(pcName)
         standardButtons: Dialog.Yes | Dialog.No
 
         onAccepted: {

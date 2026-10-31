@@ -157,6 +157,47 @@ void ComputerModel::deleteComputer(int computerIndex)
     endRemoveRows();
 }
 
+QVariantList ComputerModel::getHiddenComputers()
+{
+    QVariantList hiddenComputers;
+
+    const auto computers = m_ComputerManager->getComputers();
+    for (NvComputer* computer : computers) {
+        // Prefer a hostname, QHostAddress is null if the string isn't an IP address
+        const auto addresses = computer->uniqueAddresses();
+        QString address = addresses.first().address();
+        for (const NvAddress& candidate : addresses) {
+            if (QHostAddress(candidate.address()).isNull()) {
+                address = candidate.address();
+                break;
+            }
+        }
+
+        QReadLocker lock(&computer->lock);
+        if (computer->hidden) {
+            QVariantMap entry;
+            entry["uuid"] = computer->uuid;
+            entry["label"] = QString("%1 (%2)").arg(computer->name, address);
+            hiddenComputers.append(entry);
+        }
+    }
+
+    return hiddenComputers;
+}
+
+void ComputerModel::unhideComputer(QString uuid)
+{
+    const auto computers = m_ComputerManager->getComputers();
+    for (NvComputer* computer : computers) {
+        if (computer->uuid == uuid) {
+            m_ComputerManager->setHostHidden(computer, false);
+            return;
+        }
+    }
+
+    qWarning() << "Unable to unhide unknown PC:" << uuid;
+}
+
 class DeferredWakeHostTask : public QRunnable
 {
 public:
