@@ -233,7 +233,7 @@ CenteredGridView {
 
             Label {
                 visible: !model.statusUnknown
-                text: !model.online ? qsTr("Offline") : (model.paired ? qsTr("Online") : qsTr("Unpaired"))
+                text: !model.online ? qsTr("Offline") : (model.paired ? qsTr("Online") : qsTranslate("ComputerModel", "Unpaired"))
                 Layout.minimumWidth: implicitWidth
                 font.pointSize: 10
                 opacity: 0.7
