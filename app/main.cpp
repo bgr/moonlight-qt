@@ -946,7 +946,16 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType<ComputerManager>("ComputerManager", 1, 0,
                                               "ComputerManager",
                                               [](QQmlEngine* qmlEngine, QJSEngine*) -> QObject* {
-                                                  return new ComputerManager(StreamingPreferences::get(qmlEngine));
+                                                  // Must outlive QQmlEngine::clearSingletons(), which QML Preview calls,
+                                                  // because models and worker tasks keep pointers to it and its computers.
+                                                  // The parent still destroys it with the engine, which flushes pending saves.
+                                                  static ComputerManager* computerManager = nullptr;
+                                                  if (computerManager == nullptr) {
+                                                      computerManager = new ComputerManager(StreamingPreferences::get(qmlEngine));
+                                                      computerManager->setParent(qmlEngine);
+                                                      QQmlEngine::setObjectOwnership(computerManager, QQmlEngine::CppOwnership);
+                                                  }
+                                                  return computerManager;
                                               });
     qmlRegisterSingletonType<AutoUpdateChecker>("AutoUpdateChecker", 1, 0,
                                                 "AutoUpdateChecker",
