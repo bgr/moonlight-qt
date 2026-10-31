@@ -11,13 +11,16 @@ import SdlGamepadKeyNavigation 1.0
 
 CenteredGridView {
     property ComputerModel computerModel : createModel()
+    readonly property bool compactLayout: width < 200 || height < 340
 
     id: pcGrid
     focus: true
     activeFocusOnTab: true
-    topMargin: 20
+    minMargin: compactLayout ? 0 : 10
+    topMargin: compactLayout ? 0 : 20
     bottomMargin: 5
-    cellWidth: 310; cellHeight: 330;
+    cellWidth: compactLayout ? availableWidth : 310
+    cellHeight: compactLayout ? 30 : 330
     objectName: qsTr("Computers")
 
     Component.onCompleted: {
@@ -124,13 +127,15 @@ CenteredGridView {
     model: computerModel
 
     delegate: NavigableItemDelegate {
-        width: 300; height: 320;
+        width: pcGrid.compactLayout ? pcGrid.cellWidth : 300
+        height: pcGrid.compactLayout ? pcGrid.cellHeight : 320
         grid: pcGrid
 
         property alias pcContextMenu : pcContextMenuLoader.item
 
         Image {
             id: pcIcon
+            visible: !pcGrid.compactLayout
             anchors.horizontalCenter: parent.horizontalCenter
             source: "qrc:/res/desktop_windows-48px.svg"
             sourceSize {
@@ -145,7 +150,7 @@ CenteredGridView {
             anchors.horizontalCenter: pcIcon.horizontalCenter
             anchors.verticalCenter: pcIcon.verticalCenter
             anchors.verticalCenterOffset: !model.online ? -18 : -16
-            visible: !model.statusUnknown && (!model.online || !model.paired)
+            visible: !pcGrid.compactLayout && !model.statusUnknown && (!model.online || !model.paired)
             source: !model.online ? "qrc:/res/warning_FILL1_wght300_GRAD200_opsz24.svg" : "qrc:/res/baseline-lock-24px.svg"
             sourceSize {
                 width: !model.online ? 75 : 70
@@ -160,12 +165,13 @@ CenteredGridView {
             anchors.verticalCenterOffset: -15
             width: 75
             height: 75
-            visible: model.statusUnknown
+            visible: !pcGrid.compactLayout && model.statusUnknown
             running: visible
         }
 
         Label {
             id: pcNameText
+            visible: !pcGrid.compactLayout
             text: model.name
 
             width: parent.width
@@ -175,6 +181,44 @@ CenteredGridView {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.Wrap
             elide: Text.ElideRight
+        }
+
+        RowLayout {
+            visible: pcGrid.compactLayout
+            anchors.fill: parent
+            anchors.leftMargin: 10
+            anchors.rightMargin: 20  // keeps the status clear of the ScrollBar
+            spacing: 8
+
+            Image {
+                source: "qrc:/res/desktop_windows-48px.svg"
+                sourceSize {
+                    width: 18
+                    height: 18
+                }
+            }
+
+            Label {
+                text: model.name
+                Layout.fillWidth: true
+                font.pointSize: 12
+                elide: Text.ElideRight
+            }
+
+            BusyIndicator {
+                visible: model.statusUnknown
+                running: visible
+                padding: 0
+                Layout.preferredWidth: 20
+                Layout.preferredHeight: 20
+            }
+
+            Label {
+                visible: !model.statusUnknown
+                text: !model.online ? qsTr("Offline") : (model.paired ? qsTr("Online") : qsTr("Unpaired"))
+                font.pointSize: 10
+                opacity: 0.7
+            }
         }
 
         Loader {

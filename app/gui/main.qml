@@ -19,8 +19,8 @@ ApplicationWindow {
     property bool clearOnBack: false
 
     id: window
-    width: 1280
-    height: 600
+    width: 380
+    height: 500
 
     // This function runs prior to creation of the initial StackView item
     function doEarlyInit() {
