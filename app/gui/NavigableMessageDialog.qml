@@ -52,8 +52,8 @@ NavigableDialog {
 
             // Cap the width so the dialog doesn't grow horizontally forever. This
             // will cause word wrap to kick in.
-            Layout.maximumWidth: 400
-            Layout.maximumHeight: 400
+            Layout.maximumWidth: Math.min(400, window.width - 128)
+            Layout.maximumHeight: Math.min(400, window.height - 140)
         }
     }
 
