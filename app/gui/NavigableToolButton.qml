@@ -8,8 +8,12 @@ ToolButton {
     activeFocusOnTab: true
 
     icon.source: iconSource
-    icon.width: background.width
-    icon.height: background.height
+    // Binding these to the background's size hangs the UI in a layout loop on a 42 tall toolbar
+    icon.width: 20
+    icon.height: 20
+    padding: 4
+
+    Layout.preferredWidth: icon.width + leftPadding + rightPadding
 
     // This determines the size of the Material highlight. We increase it
     // from the default because we use larger than normal icons for TV readability.

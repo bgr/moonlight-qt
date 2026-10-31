@@ -21,7 +21,6 @@ CenteredGridView {
     bottomMargin: 5
     cellWidth: compactLayout ? availableWidth : 310
     cellHeight: compactLayout ? 30 : 330
-    objectName: qsTr("Computers")
 
     Component.onCompleted: {
         // Don't show any highlighted item until interacting with them.
