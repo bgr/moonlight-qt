@@ -11,7 +11,7 @@ import SdlGamepadKeyNavigation 1.0
 
 CenteredGridView {
     property ComputerModel computerModel : createModel()
-    readonly property bool compactLayout: width < 200 || height < 340
+    readonly property bool compactLayout: width < 600 || height < 340
 
     id: pcGrid
     focus: true
