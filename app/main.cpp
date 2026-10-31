@@ -966,7 +966,11 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType<StreamingPreferences>("StreamingPreferences", 1, 0,
                                                    "StreamingPreferences",
                                                    [](QQmlEngine* qmlEngine, QJSEngine*) -> QObject* {
-                                                       return StreamingPreferences::get(qmlEngine);
+                                                       // Must outlive QQmlEngine::clearSingletons(), which QML Preview calls,
+                                                       // because StreamingPreferences::get() keeps returning this pointer.
+                                                       StreamingPreferences* prefs = StreamingPreferences::get(qmlEngine);
+                                                       QQmlEngine::setObjectOwnership(prefs, QQmlEngine::CppOwnership);
+                                                       return prefs;
                                                    });
 
     // Create the identity manager on the main thread
