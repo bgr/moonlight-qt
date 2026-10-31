@@ -187,22 +187,41 @@ CenteredGridView {
             visible: pcGrid.compactLayout
             anchors.fill: parent
             anchors.leftMargin: 10
-            anchors.rightMargin: 20  // keeps the status clear of the ScrollBar
+            anchors.rightMargin: 10
             spacing: 8
 
             Image {
-                source: "qrc:/res/desktop_windows-48px.svg"
+                source: model.online && !model.paired ? "qrc:/res/baseline-lock-24px.svg" : "qrc:/res/desktop_windows-48px.svg"
+                opacity: model.online ? 1 : 0.4
+                Layout.preferredWidth: 26
+                Layout.preferredHeight: 26
+                fillMode: Image.Pad
                 sourceSize {
-                    width: 18
-                    height: 18
+                    width: model.online && !model.paired ? 18 : 26
+                    height: model.online && !model.paired ? 18 : 26
                 }
             }
 
-            Label {
-                text: model.name
+            RowLayout {
                 Layout.fillWidth: true
-                font.pointSize: 12
-                elide: Text.ElideRight
+                spacing: 0
+
+                Label {
+                    text: model.name
+                    Layout.fillWidth: true
+                    Layout.minimumWidth: Math.min(implicitWidth, parent.width / 2)
+                    Layout.maximumWidth: implicitWidth
+                    font.pointSize: 12
+                    elide: Text.ElideRight
+                }
+
+                Label {
+                    text: " · " + model.address
+                    Layout.fillWidth: true
+                    font.pointSize: 10
+                    opacity: 0.7
+                    elide: Text.ElideRight
+                }
             }
 
             BusyIndicator {
@@ -216,6 +235,7 @@ CenteredGridView {
             Label {
                 visible: !model.statusUnknown
                 text: !model.online ? qsTr("Offline") : (model.paired ? qsTr("Online") : qsTr("Unpaired"))
+                Layout.minimumWidth: implicitWidth
                 font.pointSize: 10
                 opacity: 0.7
             }

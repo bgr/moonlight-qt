@@ -16,6 +16,20 @@ void ComputerModel::initialize(ComputerManager* computerManager)
     m_Computers = m_ComputerManager->getVisibleComputers();
 }
 
+// Must be called without holding computer->lock, uniqueAddresses() acquires it.
+static QString getDisplayAddress(const NvComputer* computer)
+{
+    // Prefer a hostname, QHostAddress is null if the string isn't an IP address
+    const auto addresses = computer->uniqueAddresses();
+    for (const NvAddress& candidate : addresses) {
+        if (QHostAddress(candidate.address()).isNull()) {
+            return candidate.address();
+        }
+    }
+
+    return addresses.first().address();
+}
+
 QVariant ComputerModel::data(const QModelIndex& index, int role) const
 {
     if (!index.isValid()) {
@@ -25,6 +39,11 @@ QVariant ComputerModel::data(const QModelIndex& index, int role) const
     Q_ASSERT(index.row() < m_Computers.count());
 
     NvComputer* computer = m_Computers[index.row()];
+
+    if (role == AddressRole) {
+        return getDisplayAddress(computer);
+    }
+
     QReadLocker lock(&computer->lock);
 
     switch (role) {
@@ -110,6 +129,7 @@ QHash<int, QByteArray> ComputerModel::roleNames() const
     names[StatusUnknownRole] = "statusUnknown";
     names[ServerSupportedRole] = "serverSupported";
     names[DetailsRole] = "details";
+    names[AddressRole] = "address";
 
     return names;
 }
@@ -163,15 +183,7 @@ QVariantList ComputerModel::getHiddenComputers()
 
     const auto computers = m_ComputerManager->getComputers();
     for (NvComputer* computer : computers) {
-        // Prefer a hostname, QHostAddress is null if the string isn't an IP address
-        const auto addresses = computer->uniqueAddresses();
-        QString address = addresses.first().address();
-        for (const NvAddress& candidate : addresses) {
-            if (QHostAddress(candidate.address()).isNull()) {
-                address = candidate.address();
-                break;
-            }
-        }
+        const QString address = getDisplayAddress(computer);
 
         QReadLocker lock(&computer->lock);
         if (computer->hidden) {
