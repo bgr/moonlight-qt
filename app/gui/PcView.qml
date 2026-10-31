@@ -348,7 +348,7 @@ CenteredGridView {
         // don't allow edits to the rest of the window while open
         property int pcIndex : -1
         property string pcName : ""
-        text: qsTr("Are you sure you want to delete '%1'? If this PC is still on your network, it will be added again automatically.").arg(pcName)
+        text: qsTr("Are you sure you want to remove '%1'?").arg(pcName) + " " + qsTr("If this PC is still on your network, it will be added again automatically.")
         standardButtons: Dialog.Yes | Dialog.No
 
         onAccepted: {
