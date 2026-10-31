@@ -299,11 +299,21 @@ void Session::sendClipboardToHost(const char *text)
     }
 
     QByteArray incoming(text);
+    if (incoming.size() > SS_CLIPBOARD_TEXT_MAX) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                    "Clipboard text cut from %d to %d bytes",
+                    static_cast<int>(incoming.size()),
+                    SS_CLIPBOARD_TEXT_MAX);
+
+        // Don't cut inside a UTF-8 character
+        int length = SS_CLIPBOARD_TEXT_MAX;
+        while (length > 0 && (incoming.at(length) & 0xC0) == 0x80) {
+            length--;
+        }
+        incoming.truncate(length);
+    }
     if (incoming == m_ClipboardEcho) {
         return;
-    }
-    if (incoming.size() > SS_CLIPBOARD_TEXT_MAX) {
-        incoming.truncate(SS_CLIPBOARD_TEXT_MAX);
     }
 
     m_ClipboardEcho = incoming;
