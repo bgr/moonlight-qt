@@ -212,9 +212,10 @@ Item {
 
         Label {
             id: stageLabel
+            width: Math.min(implicitWidth, window.width - stageSpinner.width - 25)
             height: stageSpinner.height
             text: stageText
-            font.pointSize: 20
+            font.pointSize: window.width < 600 ? 14 : 20
             verticalAlignment: Text.AlignVCenter
 
             wrapMode: Text.Wrap
@@ -224,9 +225,11 @@ Item {
     Label {
         id: hintText
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 50
+        anchors.bottomMargin: parent.width < 600 ? 10 : 50
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pointSize: 18
+        width: parent.width - 20
+        font.pointSize: parent.width < 600 ? 11 : 18
+        horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
 
         wrapMode: Text.Wrap

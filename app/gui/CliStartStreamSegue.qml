@@ -57,8 +57,9 @@ Item {
 
         Label {
             id: stageLabel
+            width: Math.min(implicitWidth, window.width - stageSpinner.width - 25)
             height: stageSpinner.height
-            font.pointSize: 20
+            font.pointSize: window.width < 600 ? 14 : 20
             verticalAlignment: Text.AlignVCenter
 
             wrapMode: Text.Wrap
