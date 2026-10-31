@@ -12,13 +12,15 @@ CenteredGridView {
     property bool activated
     property bool showHiddenGames
     property bool showGames
+    readonly property real itemScale: width < 600 || height < 340 ? 0.5 : 1
 
     id: appGrid
     focus: true
     activeFocusOnTab: true
-    topMargin: 20
+    topMargin: 20 * itemScale
     bottomMargin: 5
-    cellWidth: 230; cellHeight: 297;
+    cellWidth: 230 * itemScale
+    cellHeight: 297 * itemScale
 
     function computerLost()
     {
@@ -71,7 +73,8 @@ CenteredGridView {
     model: appModel
 
     delegate: NavigableItemDelegate {
-        width: 220; height: 287;
+        width: 220 * appGrid.itemScale
+        height: 287 * appGrid.itemScale
         grid: appGrid
 
         property alias appContextMenu: appContextMenuLoader.item
@@ -85,7 +88,9 @@ CenteredGridView {
 
             id: appIcon
             anchors.horizontalCenter: parent.horizontalCenter
-            y: 10
+            y: 10 * appGrid.itemScale
+            width: 200 * appGrid.itemScale
+            height: 267 * appGrid.itemScale
             source: model.boxart
 
             onSourceSizeChanged: {
@@ -104,9 +109,6 @@ CenteredGridView {
                 {
                     isPlaceholder = false
                 }
-
-                width = 200
-                height = 267
             }
 
             // Display a tooltip with the full name if it's truncated
@@ -126,15 +128,15 @@ CenteredGridView {
                     // Don't steal focus from the toolbar buttons
                     focusPolicy: Qt.NoFocus
 
-                    anchors.horizontalCenterOffset: appIcon.isPlaceholder ? -47 : 0
-                    anchors.verticalCenterOffset: appIcon.isPlaceholder ? -75 : -60
+                    anchors.horizontalCenterOffset: (appIcon.isPlaceholder ? -47 : 0) * appGrid.itemScale
+                    anchors.verticalCenterOffset: (appIcon.isPlaceholder ? -75 : -60) * appGrid.itemScale
                     anchors.centerIn: parent
-                    implicitWidth: 85
-                    implicitHeight: 85
+                    implicitWidth: 85 * appGrid.itemScale
+                    implicitHeight: 85 * appGrid.itemScale
 
                     icon.source: "qrc:/res/play_arrow_FILL1_wght700_GRAD200_opsz48.svg"
-                    icon.width: 75
-                    icon.height: 75
+                    icon.width: 75 * appGrid.itemScale
+                    icon.height: 75 * appGrid.itemScale
 
                     onClicked: {
                         launchOrResumeSelectedApp(true)
@@ -152,15 +154,15 @@ CenteredGridView {
                     // Don't steal focus from the toolbar buttons
                     focusPolicy: Qt.NoFocus
 
-                    anchors.horizontalCenterOffset: appIcon.isPlaceholder ? 47 : 0
-                    anchors.verticalCenterOffset: appIcon.isPlaceholder ? -75 : 60
+                    anchors.horizontalCenterOffset: (appIcon.isPlaceholder ? 47 : 0) * appGrid.itemScale
+                    anchors.verticalCenterOffset: (appIcon.isPlaceholder ? -75 : 60) * appGrid.itemScale
                     anchors.centerIn: parent
-                    implicitWidth: 85
-                    implicitHeight: 85
+                    implicitWidth: 85 * appGrid.itemScale
+                    implicitHeight: 85 * appGrid.itemScale
 
                     icon.source: "qrc:/res/stop_FILL1_wght700_GRAD200_opsz48.svg"
-                    icon.width: 75
-                    icon.height: 75
+                    icon.width: 75 * appGrid.itemScale
+                    icon.height: 75 * appGrid.itemScale
 
                     onClicked: {
                         doQuitGame()
@@ -184,7 +186,7 @@ CenteredGridView {
             // in the time in which the text loads for each game.
 
             width: appIcon.width
-            height: model.running ? 175 : appIcon.height
+            height: model.running ? 175 * appGrid.itemScale : appIcon.height
 
             anchors.left: appIcon.left
             anchors.right: appIcon.right
@@ -193,9 +195,9 @@ CenteredGridView {
             sourceComponent: Label {
                 id: appNameText
                 text: model.name
-                font.pointSize: 22
-                leftPadding: 20
-                rightPadding: 20
+                font.pointSize: 22 * appGrid.itemScale
+                leftPadding: 20 * appGrid.itemScale
+                rightPadding: 20 * appGrid.itemScale
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
