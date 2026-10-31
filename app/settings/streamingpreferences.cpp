@@ -52,6 +52,7 @@
 #define SER_KEEPAWAKE "keepawake"
 #define SER_LANGUAGE "language"
 #define SER_RENDERER "renderer"
+#define SER_WINDOWGEOMETRY "windowgeometry"
 
 #define CURRENT_DEFAULT_VER 2
 
@@ -317,6 +318,16 @@ QString StreamingPreferences::getSuffixFromLanguage(StreamingPreferences::Langua
     default:
         return QLocale::system().name();
     }
+}
+
+QRect StreamingPreferences::loadWindowGeometry()
+{
+    return QSettings().value(SER_WINDOWGEOMETRY).toRect();
+}
+
+void StreamingPreferences::saveWindowGeometry(int x, int y, int width, int height)
+{
+    QSettings().setValue(SER_WINDOWGEOMETRY, QRect(x, y, width, height));
 }
 
 void StreamingPreferences::save()

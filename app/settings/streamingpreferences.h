@@ -16,6 +16,10 @@ public:
 
     Q_INVOKABLE void save();
 
+    Q_INVOKABLE QRect loadWindowGeometry();
+
+    Q_INVOKABLE void saveWindowGeometry(int x, int y, int width, int height);
+
     void reload();
 
     enum AudioConfig

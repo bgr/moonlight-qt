@@ -34,9 +34,40 @@ ApplicationWindow {
         SdlGamepadKeyNavigation.enable()
     }
 
+    function restoreWindowGeometry() {
+        var geometry = StreamingPreferences.loadWindowGeometry()
+        if (geometry.width <= 0 || geometry.height <= 0) {
+            return
+        }
+
+        width = geometry.width
+        height = geometry.height
+
+        // Keep the default position if the monitor it was on is gone
+        var titleBarX = geometry.x + geometry.width / 2
+        for (var i = 0; i < Qt.application.screens.length; i++) {
+            var screen = Qt.application.screens[i]
+            if (titleBarX >= screen.virtualX && titleBarX < screen.virtualX + screen.width &&
+                    geometry.y >= screen.virtualY && geometry.y < screen.virtualY + screen.height) {
+                x = geometry.x
+                y = geometry.y
+                break
+            }
+        }
+    }
+
+    // A maximized or fullscreen window would overwrite the size to restore to
+    onClosing: {
+        if (visibility === Window.Windowed) {
+            StreamingPreferences.saveWindowGeometry(x, y, width, height)
+        }
+    }
+
     Component.onCompleted: {
         // Show the window according to the user's preferences
         if (SystemProperties.hasDesktopEnvironment) {
+            restoreWindowGeometry()
+
             if (StreamingPreferences.uiDisplayMode == StreamingPreferences.UI_MAXIMIZED) {
                 window.showMaximized()
             }
